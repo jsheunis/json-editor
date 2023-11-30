@@ -658,16 +658,16 @@ export class ObjectEditor extends AbstractEditor {
         this.container.appendChild(this.description)
       }
 
-      /* Validation error placeholder area */
-      this.error_holder = document.createElement('div')
-      this.container.appendChild(this.error_holder)
-
       /* Container for child editor area */
       this.editor_holder = this.theme.getIndentedPanel()
       this.container.appendChild(this.editor_holder)
 
       /* Container for rows of child editors */
       this.row_container = this.theme.getGridContainer()
+
+      /* Validation error placeholder area */
+      this.error_holder = document.createElement('div')
+      this.container.appendChild(this.error_holder)
 
       if (isCategoriesFormat) {
         this.tabs_holder = this.theme.getTopTabHolder(this.getValidId(this.translateProperty(this.schema.title)))

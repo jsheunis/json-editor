@@ -107,8 +107,6 @@ export class ArrayEditor extends AbstractEditor {
         this.description = this.theme.getDescription(this.translateProperty(this.schema.description))
         this.container.appendChild(this.description)
       }
-      this.error_holder = document.createElement('div')
-      this.container.appendChild(this.error_holder)
 
       if (this.schema.format === 'tabs-top') {
         this.controls = this.theme.getHeaderButtonHolder()
@@ -138,6 +136,8 @@ export class ArrayEditor extends AbstractEditor {
           this.panel.appendChild(this.controls)
         }
       }
+      this.error_holder = document.createElement('div')
+      this.container.appendChild(this.error_holder)
     } else {
       /* compact mode */
       this.title = this.theme.getHeader('', this.getPathDepth())
