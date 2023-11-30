@@ -64,6 +64,8 @@ fetch(schema_file)
     config = {
       ajax: false,
       schema: obj,
+      theme: 'psyinf',
+      iconlib: 'fontawesome5',
       object_layout: 'table',
       disable_edit_json: true,
       disable_properties: true,
@@ -74,15 +76,38 @@ fetch(schema_file)
     }
     const form_element = document.getElementById("formeditor");
     editor = new JSONEditor(form_element, config);
-    // editor.on('ready',() => {
-    //   // for some yet unknown reason, validation error alerts from a prior
-    //   // validation procedure are still displayed when creating this new
-    //   // editor (on page refresh), so here we find and remove them all.
-    //   var alertDivs = document.querySelectorAll('.alert,.alert-danger')
-    //   alertDivs.forEach((item) => {
-    //     item.remove();
-    //   });
-    // });
+    editor.on('ready',() => {
+      // for some yet unknown reason, validation error alerts from a prior
+      // validation procedure are still displayed when creating this new
+      // editor (on page refresh), so here we find and remove them all.
+      // Update after some investigation:
+      // see: https://github.com/json-editor/json-editor/issues/856
+      // see: https://github.com/json-editor/json-editor/issues/343
+      // see: https://github.com/json-editor/json-editor/issues/1290
+      var alertDivs = document.querySelectorAll('.alert,.alert-danger')
+      alertDivs.forEach((item) => {
+        item.remove();
+      });
+      // Then, we need to add a 'required' indicator to all tabs that 
+      // have required children (TODO: this should go into theme JS)
+      var requiredElements = document.querySelectorAll('label.required')
+      requiredElements.forEach((item) => {
+        console.log(item)
+        tabpane = item.closest('.tab-pane')
+
+        console.log(tabpane)
+
+        tab_id = tabpane.id
+        href_val = "a[href='#" + tab_id +  "']"
+        el = document.querySelector(href_val);
+        el.classList.add('required-children')
+      });
+      
+
+      // 
+
+
+    });
     
     document.getElementById('submit').addEventListener('click',function() {
       // First validate the editor's current value against the schema
@@ -92,6 +117,7 @@ fetch(schema_file)
         // `property` is the schema keyword that triggered the validation error (e.g. "minLength")
         // `path` is a dot separated path into the JSON object (e.g. "root.path.to.field")
         console.log(errors);
+        // TODO: add errors to some dropdown / popup / list somewhere on the page
       }
       else {
         var val = editor.getValue()
