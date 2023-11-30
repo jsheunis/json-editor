@@ -4,6 +4,7 @@ import { htmlTheme } from './html.js'
 import { bootstrap3Theme } from './bootstrap3.js'
 import { bootstrap4Theme } from './bootstrap4.js'
 import { bootstrap5Theme } from './bootstrap5.js'
+import { psyinfTheme } from './psyinf.js'
 // import  { foundationTheme, foundation3Theme, foundation4Theme, foundation5Theme, foundation6Theme } from  './foundation.js'
 import { jqueryuiTheme } from './jqueryui.js'
 import { barebonesTheme } from './barebones.js'
@@ -17,6 +18,7 @@ export const themes = {
   bootstrap3: bootstrap3Theme,
   bootstrap4: bootstrap4Theme,
   bootstrap5: bootstrap5Theme,
+  psyinf: psyinfTheme,
   // foundation: foundationTheme,
   // foundation3: foundation3Theme,
   // foundation4: foundation4Theme,
