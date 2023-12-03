@@ -411,6 +411,12 @@ export class psyinfTheme extends AbstractTheme {
     return el
   }
 
+  getTableHeaderCell (text) {
+    const el = super.getTableHeaderCell(text)
+    el.classList.add('tblhdrcll')
+    return el
+  }
+
   getErrorMessage (text) {
     const el = document.createElement('div')
     el.classList.add('alert', 'alert-danger')

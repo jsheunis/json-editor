@@ -19,35 +19,16 @@ fetch(schema_file)
     obj.format = "categories"
     obj.title = "ABCD-J Data Catalog Form"
 
-    for (const [key, value] of Object.entries(obj.properties)) {
-      // Create/format title
-      if (!value.hasOwnProperty("title")) {
-        value.title = key
-      }
-      value.title = makeTitle(value.title)
-      // Set correct display format for arrays
-      if (value.hasOwnProperty("type") && value.type == "array") {
-        value.format = "table"
-      }
-      // Set correct display format for basic text fields
-      if (value.hasOwnProperty("type") && value.type == "string") {
-        value.format = "text"
-      }
-      // Set correct display format for description fields
-      if (key == "description" && value.type == "string") {
-        value.format = "textarea"
-      }
-      // Set correct display format for date fields
-      if (key == "last_updated" && value.type == "string") {
-        value.format = "date"
-      }
-      // Set minitems on required arrays
-      if (value.hasOwnProperty("type") && value.type == "array" && obj.required.includes(key)) {
-        value.minItems = "1"
-      }
+    traverseSchema(obj, obj["$defs"], null)
 
+    function makeTitle(schema, key) {
+      if (!schema.hasOwnProperty("title")) {
+        schema.title = key
+      }
+      schema.title = makePrettier(schema.title)
     }
-    function makeTitle(input) {
+
+    function makePrettier(input) {
       // Replace underscores and dashes with space
       output = input.replace(/_/g,' ');
       output = output.replace(/-/g,' ');
@@ -58,6 +39,49 @@ fetch(schema_file)
       result = result.charAt(0).toUpperCase() + result.slice(1)
       return result
     }
+
+    function traverseSchema(schema, defs, key_name) {
+      // Assume schema has been resolved recursively
+      // and all definitions are in #/$defs/
+      
+      // First make title for all types, except
+      if(key_name != "items" && key_name != "$ref") {
+        makeTitle(schema, key_name)
+      }
+      // Then execute tasks per type
+      if (schema.hasOwnProperty("$ref")) {
+        ref_key = schema["$ref"].replace('#/$defs/', '')
+        traverseSchema(defs[ref_key], defs, "$ref")
+      }
+      else if (schema.type == "array") {
+        schema.format = "table"
+        traverseSchema(schema.items, defs, 'items')
+      }
+      else if (schema.type == "object") {
+        for (const [key, value] of Object.entries(schema.properties)) {
+          // Set correct display format for description fields
+          if (key == "description" && value.type == "string") {
+            value.format = "textarea"
+          }
+          // Set correct display format for date fields
+          if ((key == "last_updated" || key.includes("date")) && value.type == "string") {
+            value.format = "date"
+          }
+          // Set minitems on required arrays
+          if (value.hasOwnProperty("type") &&
+              value.type == "array" &&
+              schema.hasOwnProperty("required") &&
+              schema.required.includes(key)) {
+            value.minItems = "1"
+          }
+          traverseSchema(schema.properties[key], defs, key)
+        }
+      }
+      else {
+        // pass
+      }
+    }
+
     return obj
   })  
   .then((obj) => {
@@ -73,6 +97,7 @@ fetch(schema_file)
       remove_empty_properties: true,
       show_errors: 'interaction',
       show_opt_in: false,
+      compact: false,
     }
     const form_element = document.getElementById("formeditor");
     editor = new JSONEditor(form_element, config);
@@ -92,11 +117,7 @@ fetch(schema_file)
       // have required children (TODO: this should go into theme JS)
       var requiredElements = document.querySelectorAll('label.required')
       requiredElements.forEach((item) => {
-        console.log(item)
         tabpane = item.closest('.tab-pane')
-
-        console.log(tabpane)
-
         tab_id = tabpane.id
         href_val = "a[href='#" + tab_id +  "']"
         el = document.querySelector(href_val);
